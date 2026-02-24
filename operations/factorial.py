@@ -13,4 +13,5 @@ class Multiplicacion(OperationPlugin):
         return "!"
 
     def execute(self, a, b):
-        return math.factorial(a + b)
+        value = int(a + b)
+        return math.factorial(value)
