@@ -12,7 +12,6 @@ class CalculatorKernel:
         """Load operation plugins."""
         for _, name, _ in pkgutil.iter_modules(operations.__path__):
             module = importlib.import_module(f"operations.{name}")
-            # Look for classes that inherit from OperationPlugin
             for attribute_name in dir(module):
                 attribute = getattr(module, attribute_name)
                 if (
