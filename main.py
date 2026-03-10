@@ -1,20 +1,36 @@
-from kernel import CalculatorKernel
+# main.py
+from broker.event_broker import EventBroker
+from common.logger import EventLogger
+from services.addition_service import AdditionWorker
+from services.division_service import DivisionWorker
+from services.multiplier_service import MultiplierWorker
+from ui.cli_handler import CalculatorCLI
 
 
 def main():
-    app = CalculatorKernel()
-    app.load_plugins()
+    print("--- Iniciando Sistema Calculadora EDA ---\n")
 
-    print("--- Microkernel Calculator ---")
-    try:
-        val1 = float(input("First number: "))
-        op = input("Operation (+, -, *, /): ")
-        val2 = float(input("Second number: "))
+    # 1. Levantar Infraestructura
+    broker = EventBroker()
+    logger = EventLogger(broker)  # Monitoreo global
 
-        result = app.compute(op, val1, val2)
-        print(f"Result: {result}")
-    except Exception as e:
-        print(f"Error: {e}")
+    # 2. Levantar Microservicios (Workers)
+    AdditionWorker(broker)
+    DivisionWorker(broker)
+    MultiplierWorker(broker)
+
+    # 3. Levantar la Interfaz de Usuario
+    cli = CalculatorCLI(broker)
+
+    # 4. Simular la interacción del usuario
+    cli.request_calculation(10, "+", 5)
+    cli.request_calculation(12, "*", 3)
+    cli.request_calculation(20, "/", 4)
+    cli.request_calculation(5, "/", 0)  # Prueba de error gestionado
+
+    # Prueba de evento ignorado (no hay servicio para la resta)
+    # Notarás que el logger registra la petición, pero no hay respuesta.
+    cli.request_calculation(10, "-", 5)
 
 
 if __name__ == "__main__":
